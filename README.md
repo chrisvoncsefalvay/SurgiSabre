@@ -173,3 +173,11 @@ licence boundaries.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) before sending a change. Report security
 issues through the private process described in [SECURITY.md](SECURITY.md).
+
+## Who did this?
+
+I'm [Chris von Csefalvay](https://chrisvoncsefalvay.com), an AI researcher
+specialising in post-training, simulation and systems for embodied AI. I am the
+author of _[Post-Training: A Practical Guide for AI Engineers and
+Developers](https://posttraining.guide)_ (No Starch Press, 2026), and I write
+[Post-Slop](https://postslop.substack.com).
