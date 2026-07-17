@@ -1,0 +1,41 @@
+diff --git a/src/core/cloudxr/python/CMakeLists.txt b/src/core/cloudxr/python/CMakeLists.txt
+index 73da711..b149817 100644
+--- a/src/core/cloudxr/python/CMakeLists.txt
++++ b/src/core/cloudxr/python/CMakeLists.txt
+@@ -15,22 +15,25 @@ else()
+ endif()
+ 
+ set(CLOUDXR_SDK_PATH "")
+-set(ENV_DEFAULT_FILE "${CMAKE_SOURCE_DIR}/deps/cloudxr/.env.default")
+-if(NOT EXISTS "${ENV_DEFAULT_FILE}")
+-    message(FATAL_ERROR "deps/cloudxr/.env.default not found (required).")
+-endif()
+-file(READ "${ENV_DEFAULT_FILE}" ENV_DEFAULT_CONTENT)
+-string(REGEX MATCH "CXR_RUNTIME_SDK_VERSION=([^ \t\n\r#]+)" _ "${ENV_DEFAULT_CONTENT}")
+-
+-if(CMAKE_MATCH_1)
+-    set(CXR_RUNTIME_SDK_VERSION "${CMAKE_MATCH_1}")
++if(DEFINED CXR_RUNTIME_SDK_VERSION_OVERRIDE AND NOT CXR_RUNTIME_SDK_VERSION_OVERRIDE STREQUAL "")
++    set(CXR_RUNTIME_SDK_VERSION "${CXR_RUNTIME_SDK_VERSION_OVERRIDE}")
+ else()
+-    message(FATAL_ERROR "No valid CXR_RUNTIME_SDK_VERSION found in deps/cloudxr/.env.default.")
++    set(ENV_DEFAULT_FILE "${CMAKE_SOURCE_DIR}/deps/cloudxr/.env.default")
++    if(NOT EXISTS "${ENV_DEFAULT_FILE}")
++        message(FATAL_ERROR "deps/cloudxr/.env.default not found (required).")
++    endif()
++    file(READ "${ENV_DEFAULT_FILE}" ENV_DEFAULT_CONTENT)
++    string(REGEX MATCH "CXR_RUNTIME_SDK_VERSION=([^ \t\n\r#]+)" _ "${ENV_DEFAULT_CONTENT}")
++    if(CMAKE_MATCH_1)
++        set(CXR_RUNTIME_SDK_VERSION "${CMAKE_MATCH_1}")
++    else()
++        message(FATAL_ERROR "No valid CXR_RUNTIME_SDK_VERSION found in deps/cloudxr/.env.default.")
++    endif()
+ endif()
+ 
+ set(CLOUDXR_SDK_FILE "CloudXR-${CXR_RUNTIME_SDK_VERSION}-Linux-${CLOUDXR_CPU_ARCH}-sdk.tar.gz")
+ set(CLOUDXR_SDK_PATH "${CMAKE_SOURCE_DIR}/deps/cloudxr/${CLOUDXR_SDK_FILE}")
+-if(NOT EXISTS "${CLOUDXR_SDK_PATH}")
++if(NOT EXISTS "${CLOUDXR_SDK_PATH}" AND ENABLE_CLOUDXR_BUNDLE_CHECK)
+     set(DOWNLOAD_SCRIPT "${CMAKE_SOURCE_DIR}/scripts/download_cloudxr_runtime_sdk.sh")
+     if(NOT EXISTS "${DOWNLOAD_SCRIPT}")
+         message(FATAL_ERROR "download_cloudxr_runtime_sdk.sh not found: ${DOWNLOAD_SCRIPT}")

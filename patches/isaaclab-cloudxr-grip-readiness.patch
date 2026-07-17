@@ -1,0 +1,136 @@
+diff --git a/source/isaaclab/isaaclab/devices/openxr/openxr_device.py b/source/isaaclab/isaaclab/devices/openxr/openxr_device.py
+index 57d7c345..99c7b510 100644
+--- a/source/isaaclab/isaaclab/devices/openxr/openxr_device.py
++++ b/source/isaaclab/isaaclab/devices/openxr/openxr_device.py
+@@ -38,6 +38,10 @@ with contextlib.suppress(ModuleNotFoundError):
+ from isaacsim.core.prims import SingleXFormPrim
+ 
+ 
++class _GripPoseNotReadyError(ValueError):
++    """Transient absence of the named grip descriptor from the CloudXR binding."""
++
++
+ class OpenXRDevice(DeviceBase):
+     """An OpenXR-powered device for teleoperation and interaction.
+ 
+@@ -495,7 +499,12 @@ class OpenXRDevice(DeviceBase):
+         if input_device is None:
+             return np.array([])
+ 
+-        pose_desc = input_device.get_virtual_world_pose_desc("grip")
++        try:
++            pose_desc = input_device.get_virtual_world_pose_desc("grip")
++        except RuntimeError as error:
++            if type(error) is not RuntimeError or error.args != ("invalid parameter",):
++                raise
++            raise _GripPoseNotReadyError("grip pose descriptor is not ready") from error
+         pose = pose_desc.pose_matrix
+         required_pose_flags = XRPoseValidityFlags.POSITION_VALID | XRPoseValidityFlags.ORIENTATION_VALID
+         pose_valid = (pose_desc.validity_flags & required_pose_flags) == required_pose_flags
+diff --git a/source/isaaclab/test/devices/test_oxr_device.py b/source/isaaclab/test/devices/test_oxr_device.py
+index 78416c59..e514825f 100644
+--- a/source/isaaclab/test/devices/test_oxr_device.py
++++ b/source/isaaclab/test/devices/test_oxr_device.py
+@@ -383,6 +383,102 @@ def test_missing_controller_descriptor_omits_only_that_side(empty_env, mock_xrco
+     assert device.controller_faults[DeviceBase.TrackingTarget.CONTROLLER_RIGHT] is None
+ 
+ 
++@pytest.mark.isaacsim_ci
++def test_transient_grip_descriptor_error_recovers_on_next_sample(empty_env, mock_xrcore):
++    """The exact binding readiness fault omits one side and preserves grip identity."""
++    env, _ = empty_env
++    left = mock_xrcore["left_hand"]
++    left.get_virtual_world_pose_desc.side_effect = [
++        RuntimeError("invalid parameter"),
++        mock_xrcore["controller_pose_desc"],
++    ]
++    device = OpenXRDevice(OpenXRDeviceCfg(), retargeters=[MotionControllerNoOpRetargeter(RetargeterCfg())])
++
++    first = device._get_raw_data()
++    assert DeviceBase.TrackingTarget.CONTROLLER_LEFT not in first
++    assert DeviceBase.TrackingTarget.CONTROLLER_RIGHT in first
++    assert device.controller_faults[DeviceBase.TrackingTarget.CONTROLLER_LEFT] == (
++        "_GripPoseNotReadyError: grip pose descriptor is not ready"
++    )
++
++    second = device._get_raw_data()
++    assert DeviceBase.TrackingTarget.CONTROLLER_LEFT in second
++    assert device.controller_faults[DeviceBase.TrackingTarget.CONTROLLER_LEFT] is None
++    assert [entry.args for entry in left.get_virtual_world_pose_desc.call_args_list] == [("grip",), ("grip",)]
++    left.has_pose.assert_not_called()
++
++
++@pytest.mark.isaacsim_ci
++def test_grip_descriptor_recovers_after_input_device_reconnect(empty_env, mock_xrcore):
++    """Reconnect progresses from absent to not ready to a fresh valid grip sample."""
++    env, _ = empty_env
++    singleton = mock_xrcore["singleton"]
++    left = mock_xrcore["left_hand"]
++    original_get_input_device = singleton.get_input_device.side_effect
++    left_devices = iter((None, left, left))
++
++    def reconnecting_get_input_device(path):
++        if path == "/user/hand/left":
++            return next(left_devices)
++        return original_get_input_device(path)
++
++    singleton.get_input_device.side_effect = reconnecting_get_input_device
++    left.get_virtual_world_pose_desc.side_effect = [
++        RuntimeError("invalid parameter"),
++        mock_xrcore["controller_pose_desc"],
++    ]
++    device = OpenXRDevice(OpenXRDeviceCfg(), retargeters=[MotionControllerNoOpRetargeter(RetargeterCfg())])
++
++    absent = device._get_raw_data()
++    assert DeviceBase.TrackingTarget.CONTROLLER_LEFT not in absent
++    assert device.controller_faults[DeviceBase.TrackingTarget.CONTROLLER_LEFT] == (
++        "InputDeviceUnavailable: no input device"
++    )
++    not_ready = device._get_raw_data()
++    assert DeviceBase.TrackingTarget.CONTROLLER_LEFT not in not_ready
++    assert device.controller_faults[DeviceBase.TrackingTarget.CONTROLLER_LEFT] == (
++        "_GripPoseNotReadyError: grip pose descriptor is not ready"
++    )
++    recovered = device._get_raw_data()
++    assert DeviceBase.TrackingTarget.CONTROLLER_LEFT in recovered
++    assert device.controller_faults[DeviceBase.TrackingTarget.CONTROLLER_LEFT] is None
++
++
++@pytest.mark.isaacsim_ci
++def test_nonmatching_grip_descriptor_runtime_errors_propagate(empty_env, mock_xrcore):
++    """Only the exact base RuntimeError from descriptor acquisition is transient."""
++    env, _ = empty_env
++    left = mock_xrcore["left_hand"]
++
++    class DerivedRuntimeError(RuntimeError):
++        pass
++
++    errors = (
++        RuntimeError("Invalid parameter"),
++        RuntimeError("invalid parameter "),
++        RuntimeError("invalid parameter", "extra"),
++        DerivedRuntimeError("invalid parameter"),
++    )
++    device = OpenXRDevice(OpenXRDeviceCfg(), retargeters=[MotionControllerNoOpRetargeter(RetargeterCfg())])
++    for error in errors:
++        left.get_virtual_world_pose_desc.side_effect = error
++        with pytest.raises(RuntimeError) as raised:
++            device._get_raw_data()
++        assert raised.value is error
++
++
++@pytest.mark.isaacsim_ci
++def test_invalid_parameter_from_controller_gesture_propagates(empty_env, mock_xrcore):
++    """The matching text remains fatal outside the grip descriptor call site."""
++    env, _ = empty_env
++    left = mock_xrcore["left_hand"]
++    left.has_input_gesture.side_effect = RuntimeError("invalid parameter")
++    device = OpenXRDevice(OpenXRDeviceCfg(), retargeters=[MotionControllerNoOpRetargeter(RetargeterCfg())])
++
++    with pytest.raises(RuntimeError, match="invalid parameter"):
++        device._get_raw_data()
++
++
+ @pytest.mark.isaacsim_ci
+ def test_unexpected_motion_controller_errors_propagate(empty_env, mock_xrcore):
+     """Do not silently convert an XR API regression into one-sided control."""

@@ -1,0 +1,16 @@
+diff --git a/src/core/cloudxr/python/wss.py b/src/core/cloudxr/python/wss.py
+index 11fe10e..f5ecb87 100644
+--- a/src/core/cloudxr/python/wss.py
++++ b/src/core/cloudxr/python/wss.py
+@@ -757,7 +757,10 @@ async def run(
+                         f"verified: adb reverse TURN {_usb_turn_port_resolved}",
+                     )
+ 
+-                if setup_oob:
++                oob_adb_automation = os.environ.get(
++                    "TELEOP_OOB_ADB_AUTOMATION", "1"
++                ) == "1"
++                if setup_oob and oob_adb_automation:
+                     from .oob_teleop_adb import (  # noqa: PLC0415
+                         build_teleop_url,
+                         monitor_headset_wifi,

@@ -1,0 +1,14 @@
+[package]
+version = "0.1.0"
+title = "SurgiSabre Isaac Sim 5 compatibility"
+description = "Project-scoped aliases needed by the pinned Isaac Lab revision on Isaac Sim 6"
+category = "Simulation"
+
+[core]
+reloadable = false
+
+[dependencies]
+"omni.physics.tensors" = { version = "=110.1.13" }
+
+[[python.module]]
+name = "surgisabre.sim5_compat"

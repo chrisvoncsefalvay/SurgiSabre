@@ -1,0 +1,21 @@
+--- a/src/core/python/isaacteleop_init.py
++++ b/src/core/python/isaacteleop_init.py
+@@ -7,7 +7,11 @@
+ """
+ 
+ from importlib.metadata import PackageNotFoundError, version
+ 
++__provenance_commit__ = "ca175df7afc8198cbba0592cd1b447b11a4f3165"
++__integration_commit__ = "790d6cb4e948de377975c76ed1e9cbf5098e10fc"
++
++
+ try:
+     __version__ = version("isaacteleop")
+ except PackageNotFoundError:
+@@ -34,4 +38,6 @@
+     "teleop_session_manager",
+     "cloudxr",
+     "__version__",
++    "__provenance_commit__",
++    "__integration_commit__",
+ ]

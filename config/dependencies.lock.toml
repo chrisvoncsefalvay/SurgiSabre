@@ -1,0 +1,43 @@
+schema_version = 1
+
+[isaac_sim]
+repository = "https://github.com/isaac-sim/IsaacSim.git"
+revision = "987015050efebfd0cd5d3736ae47fffe5adee308"
+tested_version = "6.0.1-rc.7"
+architecture = "aarch64"
+python = "3.12"
+kit = "110.1.2"
+
+[isaac_lab]
+repository = "https://github.com/isaac-sim/IsaacLab.git"
+revision = "ab419fec0ddae768952e6d56f9a317e1461d2d71"
+version = "0.54.5"
+
+[isaac_teleop]
+repository = "https://github.com/NVIDIA/IsaacTeleop.git"
+source_revision = "ca175df7afc8198cbba0592cd1b447b11a4f3165"
+integration_revision = "790d6cb4e948de377975c76ed1e9cbf5098e10fc"
+version = "1.4+local"
+
+[cloudxr]
+runtime_version = "6.2.0"
+javascript_version = "6.2.0"
+arm64_archive = "CloudXR-6.2.0-Linux-arm64-sdk.tar.gz"
+arm64_archive_sha256 = "3aa25e7c052aab4c2e6b1cb188272ae6d691335c586e1667e95e73c492584e88"
+javascript_archive_sha256 = "062f618b1f32ae0da07f8826a0704708e206704e91446f584896c979fdbe3df2"
+signalling_tcp_port = 49100
+wss_tcp_port = 48322
+media_udp_port = 47998
+
+[i4h_psm]
+catalogue_version = "0.6.0"
+catalogue_tag_revision = "bee7e9314bb8f1c78f7e178a7840d708eda9ffb1"
+content_revision = "c189487"
+url = "https://omniverse-content-production.s3-us-west-2.amazonaws.com/Assets/Isaac/Healthcare/0.6.0/c189487/Robots/dVRK/PSM/psm.usd"
+sha256 = "5730339c3b806f17a5228c69b97464d0b3469888002f62fb23d9621f746347c8"
+
+[python_runtime]
+cloudxr_python = "3.11.15"
+numpy = "2.4.6"
+websockets = "14.0"
+patchelf_package = "0.17.2.4"

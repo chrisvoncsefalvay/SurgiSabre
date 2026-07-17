@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you use SurgiSabre in research, please cite the software and the upstream projects listed in ATTRIBUTION.md."
+title: "SurgiSabre"
+type: software
+authors:
+  - family-names: "von Csefalvay"
+    given-names: "Chris"
+    affiliation: "Robotics Intelligence Lab, HCLTech"
+abstract: >-
+  SurgiSabre is an immersive surgical teleoperation familiarisation simulation.
+  It maps handheld XR controllers to two simulated dVRK Patient Side
+  Manipulators around fixed remote centres and provides clutching, axial
+  insertion, target contacts, haptics, scoring and runtime evidence.
+keywords:
+  - surgical robotics
+  - teleoperation
+  - virtual reality
+  - dVRK
+  - Isaac Sim
+  - Isaac Lab
+  - IsaacTeleop
+  - operator familiarisation
+version: 0.1.0
+date-released: 2026-07-16
+license: Apache-2.0
+repository-code: "https://github.com/chrisvoncsefalvay/SurgiSabre"
+url: "https://github.com/chrisvoncsefalvay/SurgiSabre"
