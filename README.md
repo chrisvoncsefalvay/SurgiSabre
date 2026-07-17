@@ -79,7 +79,7 @@ floating minimum versions.
 | i4h content revision | `c189487` |
 
 Other hosts, GPUs, headset versions and network layouts are unverified until
-they pass the same runtime and physical acceptance checks.
+they pass the same runtime and physical acceptance checks. Let me know what you managd to get it to work on.
 
 ## Source-only distribution
 
@@ -138,7 +138,6 @@ open Internet service. Restrict ingress to the operator network and read
 
 ## Known limitations
 
-- The simulation does not model tissue or an operative procedure.
 - Contact response, haptics, latency and controller mapping are simplified.
 - The course is a familiarisation exercise, not a validated training protocol.
 - Score is a game metric, not a proficiency or credentialling metric.
@@ -152,8 +151,8 @@ SurgiSabre is research and demonstration software. It is not a medical device
 and is not intended for clinical use, procedure planning, patient care,
 credentialling or operation of a physical surgical robot. Its kinematics,
 dynamics, latency, collision response and haptics have not been validated
-against clinical hardware. Do not interpret a game score as evidence of
-surgical competence.
+against clinical hardware. **Do not interpret a game score as evidence of
+surgical competence.**
 
 Use the headset only in a clear safe area and follow the headset manufacturer's
 safety guidance. Do not connect this software to a patient-facing system or a
