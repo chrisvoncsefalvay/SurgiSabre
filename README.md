@@ -2,6 +2,8 @@
 
 **A lighthearted target game for serious surgical teleoperation familiarisation.**
 
+![SurgiSabre](.github/surgisabre.gif.gif)
+
 SurgiSabre is an immersive teleoperation simulation in which Meta Quest
 controllers drive two simulated dVRK Patient Side Manipulators (PSMs). Players
 intercept approaching targets using clutchable remote-centre instrument control
