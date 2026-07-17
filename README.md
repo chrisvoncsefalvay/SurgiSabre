@@ -25,6 +25,11 @@ competence.
 
 > Beat the targets. Learn the mapping. Respect the remote centre.
 
+__NOTE:__ This is not necessarily the best code ever. It most definitely isn't
+the cleanest way to do it, as it has to leverage pins from repos that haven't 
+merged some changes yet. It will run... but this is not where you should start
+learning how to Isaac.
+
 ## What the operator practises
 
 - Left and right controllers command the corresponding left and right PSMs.
